@@ -1,70 +1,66 @@
-# Getting Started with Create React App
+# ⚖️ ModQueue – Moderation Dashboard
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A React-based moderation dashboard where pending posts can be **approved**, **rejected**, or **previewed**.  
+Built with **React, Redux Toolkit, and simple CSS**.
 
-## Available Scripts
+---
 
-In the project directory, you can run:
+🌐 **Live Demo:** [https://moderation-queue-nine.vercel.app/](https://moderation-queue-nine.vercel.app/)
 
-### `npm start`
+## 🚀 Features
+- View posts in **Pending, Approved, and Rejected** tabs
+- Batch select with **Approve / Reject / Clear** actions
+- Confirmation dialogs for batch actions
+- **Undo support** for approvals/rejections
+- **Search & Sort** (by title, author, date)
+- Smart **pagination** with "jump" feature
+- **Preview modal** with full post details
+- **Dark mode toggle**
+- Persistent data (stored in browser localStorage)
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+---
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## 🛠️ Tech Stack
+- **Frontend:** React + Redux Toolkit
+- **Styling:** CSS
+- **State Management:** Redux
+- **Mock Data:** `mockData.js` (simulated posts)
 
-### `npm test`
+---
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## 📦 Getting Started
 
-### `npm run build`
+### 1. Clone the repo
+git clone https://github.com/jatin283/moderation_queue.git
+cd moderation_queue
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### 2. Install Dependencies
+npm install
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### 3. Run the development server
+npm start
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
 
-### `npm run eject`
+### Project Structure
+src/
+  components/   # Reusable UI components (Navbar, Toolbar, Tabs, PostList, etc.)
+  store/        # Redux slices (postsSlice, uiSlice)
+  mockData.js   # Initial mock posts
+  App.js        # Main app logic
+  App.css       # Global styles
+public/
+  favicon.ico   # App icon (⚖️ ModQueue symbol)
+  index.html    # Entry point
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+### How to Use
+Open the app
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+Navigate between Pending / Approved / Rejected tabs
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+Select posts → Approve or Reject them
 
-## Learn More
+Preview posts with more details
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+Use the search bar or sorting dropdown
 
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
