@@ -15,7 +15,6 @@ Built with **React, Redux Toolkit, and simple CSS**.
 - **Search & Sort** (by title, author, date)
 - Smart **pagination** with "jump" feature
 - **Preview modal** with full post details
-- **Dark mode toggle**
 - Persistent data (stored in browser localStorage)
 
 ---
@@ -39,18 +38,6 @@ npm install
 
 ### 3. Run the development server
 npm start
-
-
-### Project Structure
-src/
-  components/   # Reusable UI components (Navbar, Toolbar, Tabs, PostList, etc.)
-  store/        # Redux slices (postsSlice, uiSlice)
-  mockData.js   # Initial mock posts
-  App.js        # Main app logic
-  App.css       # Global styles
-public/
-  favicon.ico   # App icon (⚖️ ModQueue symbol)
-  index.html    # Entry point
 
 
 ### How to Use
