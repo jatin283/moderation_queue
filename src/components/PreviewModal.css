@@ -1,23 +1,44 @@
 .modal-overlay {
   position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.5);
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
+
 .modal {
   background: white;
   padding: 20px;
-  margin: 80px auto;
-  width: 80%;
-  max-width: 500px;
   border-radius: 6px;
-  position: relative;
+  max-width: 500px;
+  width: 90%;
 }
-.close {
-  position: absolute;
-  right: 10px;
-  top: 10px;
+
+.modal h2 {
+  margin-top: 0;
+}
+
+.post-reason, .post-description {
+  margin: 10px 0;
+  background: #f9f9f9;
+  padding: 8px;
+  border-radius: 4px;
+}
+
+.close-btn {
+  margin-top: 12px;
+  padding: 6px 12px;
   border: none;
-  background: none;
-  font-size: 18px;
+  background: #007bff;
+  color: white;
+  border-radius: 4px;
   cursor: pointer;
+}
+
+.close-btn:hover {
+  background: #0056b3;
 }

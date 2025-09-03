@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+// src/App.js
+import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import Navbar from "./components/Navbar";
 import Tabs from "./components/Tabs";
@@ -7,7 +8,7 @@ import PostList from "./components/PostList";
 import PreviewModal from "./components/PreviewModal";
 import ConfirmDialog from "./components/ConfirmDialog";
 import Toast from "./components/Toast";
-import { approvePost, rejectPost } from "./store/postsSlice";
+import { approvePost, rejectPost, revertChanges } from "./store/postsSlice";
 import { toggleSelect, clearSelection, openPreview, closePreview } from "./store/uiSlice";
 import "./App.css";
 
@@ -21,10 +22,33 @@ export default function App() {
   const [page, setPage] = useState(1);
   const pageSize = 5;
   const [rejectConfirmOpen, setRejectConfirmOpen] = useState(false);
-  const [approveConfirmOpen, setApproveConfirmOpen] = useState(false); // ✅ new
+  const [approveConfirmOpen, setApproveConfirmOpen] = useState(false);
   const [toast, setToast] = useState(null);
 
-  const filtered = posts.filter((p) => p.status === tab);
+  // store last action as { changes: [ {id, prevStatus}, ... ] }
+  const [lastAction, setLastAction] = useState(null);
+
+  // Search & sort
+  const [search, setSearch] = useState("");
+  const [sortOrder, setSortOrder] = useState("newest");
+
+  // --- filter & sort ---
+  let filtered = posts.filter((p) => p.status === tab);
+
+  if (search.trim() !== "") {
+    filtered = filtered.filter(
+      (p) =>
+        p.title.toLowerCase().includes(search.toLowerCase()) ||
+        p.author.username.toLowerCase().includes(search.toLowerCase())
+    );
+  }
+
+  filtered = filtered.sort((a, b) => {
+    const dateA = new Date(a.reportedAt);
+    const dateB = new Date(b.reportedAt);
+    return sortOrder === "newest" ? dateB - dateA : dateA - dateB;
+  });
+
   const counts = posts.reduce((acc, p) => {
     acc[p.status] = (acc[p.status] || 0) + 1;
     return acc;
@@ -36,35 +60,61 @@ export default function App() {
 
   const previewPost = posts.find((p) => p.id === previewId);
 
+  // --- Single actions (capture prev status before changing) ---
   const handleApprove = (id) => {
+    const post = posts.find((p) => p.id === id);
+    const prevStatus = post ? post.status : null;
+    // apply change
     dispatch(approvePost(id));
+    // record for undo
+    setLastAction({ changes: [{ id, prevStatus }] });
     setToast("Approved 1 post");
   };
+
   const handleReject = (id) => {
+    const post = posts.find((p) => p.id === id);
+    const prevStatus = post ? post.status : null;
     dispatch(rejectPost(id));
+    setLastAction({ changes: [{ id, prevStatus }] });
     setToast("Rejected 1 post");
   };
 
-  // ✅ Batch Approve/Reject with confirmation
+  // --- Batch actions: open confirmation first ---
   const handleBatchApprove = () => setApproveConfirmOpen(true);
   const handleBatchReject = () => setRejectConfirmOpen(true);
 
   const confirmApprove = () => {
-    paginatedPosts
-      .filter((p) => selected.includes(p.id))
-      .forEach((p) => dispatch(approvePost(p.id)));
-    setToast(`Approved ${selected.length} posts`);
+    // capture previous statuses for all affected posts on current page
+    const affected = paginatedPosts.filter((p) => selected.includes(p.id));
+    const changes = affected.map((p) => ({ id: p.id, prevStatus: p.status }));
+    // apply
+    changes.forEach((c) => dispatch(approvePost(c.id)));
+    // set undo payload
+    setLastAction({ changes });
+    setToast(`Approved ${changes.length} posts`);
     dispatch(clearSelection());
     setApproveConfirmOpen(false);
   };
 
   const confirmReject = () => {
-    paginatedPosts
-      .filter((p) => selected.includes(p.id))
-      .forEach((p) => dispatch(rejectPost(p.id)));
-    setToast(`Rejected ${selected.length} posts`);
+    const affected = paginatedPosts.filter((p) => selected.includes(p.id));
+    const changes = affected.map((p) => ({ id: p.id, prevStatus: p.status }));
+    changes.forEach((c) => dispatch(rejectPost(c.id)));
+    setLastAction({ changes });
+    setToast(`Rejected ${changes.length} posts`);
     dispatch(clearSelection());
     setRejectConfirmOpen(false);
+  };
+
+  // --- Undo: revert to recorded prevStatus ---
+  const handleUndo = () => {
+    if (!lastAction || !Array.isArray(lastAction.changes) || lastAction.changes.length === 0) {
+      setToast("Nothing to undo");
+      return;
+    }
+    dispatch(revertChanges(lastAction.changes));
+    setToast("Undo successful");
+    setLastAction(null);
   };
 
   const changeTab = (t) => {
@@ -73,6 +123,7 @@ export default function App() {
     dispatch(clearSelection());
   };
 
+  // smart pagination helper (unused change)
   const getPageNumbers = () => {
     const pages = [];
     const delta = 2;
@@ -89,11 +140,35 @@ export default function App() {
     return pages;
   };
 
+  // keyboard: only keep Escape behavior (close preview)
+  useEffect(() => {
+    const handleKey = (e) => {
+      if (e.key === "Escape") dispatch(closePreview());
+    };
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, []);
+
   return (
     <div>
       <Navbar />
+
       <div className="container">
         <Tabs active={tab} onChange={changeTab} counts={counts} />
+
+        {/* Search + Sort */}
+        <div className="search-sort">
+          <input
+            type="text"
+            placeholder="Search by title or author..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+          <select value={sortOrder} onChange={(e) => setSortOrder(e.target.value)}>
+            <option value="newest">Newest First</option>
+            <option value="oldest">Oldest First</option>
+          </select>
+        </div>
 
         {tab === "pending" && (
           <Toolbar
@@ -163,7 +238,6 @@ export default function App() {
 
       <PreviewModal post={previewPost} onClose={() => dispatch(closePreview())} />
 
-      {/* ✅ Confirmation Dialogs */}
       <ConfirmDialog
         open={rejectConfirmOpen}
         count={selected.length}
@@ -179,7 +253,7 @@ export default function App() {
         onCancel={() => setApproveConfirmOpen(false)}
       />
 
-      <Toast message={toast} onUndo={null} onClose={() => setToast(null)} />
+      <Toast message={toast} onUndo={handleUndo} onClose={() => setToast(null)} />
     </div>
   );
 }
